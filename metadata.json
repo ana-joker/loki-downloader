@@ -1,0 +1,5 @@
+{
+  "name": "LOKI Downloader",
+  "description": "An elegant web application that allows users to input a video or playlist URL, select a quality, and initiate a download, all with a single click. It simulates fetching video information and downloading using AI.",
+  "requestFramePermissions": []
+}
