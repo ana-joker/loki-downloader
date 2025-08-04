@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback } from 'react';
 import type { VideoInfo, StatusMessage } from './types';
 import { UrlInputForm } from './components/UrlInputForm';
@@ -27,14 +26,14 @@ const App: React.FC = () => {
 
         try {
             const info = await getVideoInfo(url);
-            if (info.success) {
+            if (info.success === false) {
+                // By checking for the failure case first, we ensure TypeScript correctly
+                // narrows the type of `info` to `VideoInfoError` in this block.
+                setStatus({ text: `❌ حدث خطأ: ${info.error}`, type: 'error' });
+            } else {
                 // In this block, `info` is correctly inferred as `VideoInfoSuccess`.
                 setVideoInfo(info);
                 setStatus({ text: '✅ تم الحصول على المعلومات بنجاح.', type: 'success' });
-            } else {
-                // By checking for the success case first, we ensure TypeScript correctly
-                // narrows the type of `info` to `VideoInfoError` in this block.
-                setStatus({ text: `❌ حدث خطأ: ${info.error}`, type: 'error' });
             }
         } catch (error) {
             console.error(error);

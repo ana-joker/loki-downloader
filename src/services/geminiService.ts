@@ -1,12 +1,14 @@
+
 import { GoogleGenAI, Type } from "@google/genai";
 import type { VideoInfo, VideoInfoError, VideoInfoSuccess } from '../types';
 
-// Use Vite's way of accessing environment variables
+// Use Vite's way of accessing environment variables as defined in the README.
 const API_KEY = import.meta.env.VITE_API_KEY;
 
 if (!API_KEY) {
-    // This check is for development; in a deployed app, the build would fail or the variable would be set.
-    throw new Error("VITE_API_KEY environment variable not set. Please create a .env file and add it.");
+    // This check helps during development.
+    // In a deployed app, the build would fail or the variable would be set.
+    throw new Error("VITE_API_KEY environment variable not set. Please create a .env file and add it, as described in README.md.");
 }
 
 const ai = new GoogleGenAI({ apiKey: API_KEY });
@@ -59,8 +61,16 @@ export const getVideoInfo = async (url: string): Promise<VideoInfo> => {
             },
         });
         
-        const jsonText = response.text.trim();
-        const parsedData = JSON.parse(jsonText);
+        // Safely access the response text, as it can be undefined.
+        const jsonText = response.text;
+        if (!jsonText) {
+            return {
+                success: false,
+                error: "Received an empty response from the API.",
+            };
+        }
+        
+        const parsedData = JSON.parse(jsonText.trim());
 
         if (parsedData.success === true) {
             const result: VideoInfoSuccess = {
@@ -69,6 +79,7 @@ export const getVideoInfo = async (url: string): Promise<VideoInfo> => {
                 is_playlist: parsedData.is_playlist ?? false,
                 formats: parsedData.formats ?? [],
             };
+            // Ensure formats are sorted from highest to lowest quality
             result.formats.sort((a, b) => b.height - a.height);
             return result;
         } else {
