@@ -1,6 +1,5 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
-import type { VideoInfo } from '../types';
+import type { VideoInfo, VideoInfoError, VideoInfoSuccess } from '../types';
 
 const API_KEY = process.env.API_KEY;
 
@@ -59,14 +58,24 @@ export const getVideoInfo = async (url: string): Promise<VideoInfo> => {
         });
         
         const jsonText = response.text.trim();
-        const parsedJson = JSON.parse(jsonText) as VideoInfo;
-        
-        if (parsedJson.success && parsedJson.formats) {
-            // Sort formats from highest to lowest quality
-            parsedJson.formats.sort((a, b) => b.height - a.height);
-        }
+        const parsedData = JSON.parse(jsonText);
 
-        return parsedJson;
+        if (parsedData.success === true) {
+            const result: VideoInfoSuccess = {
+                success: true,
+                title: parsedData.title ?? "Untitled",
+                is_playlist: parsedData.is_playlist ?? false,
+                formats: parsedData.formats ?? [],
+            };
+            result.formats.sort((a, b) => b.height - a.height);
+            return result;
+        } else {
+            const result: VideoInfoError = {
+                success: false,
+                error: parsedData.error ?? "An unknown error occurred while extracting video info.",
+            };
+            return result;
+        }
 
     } catch (e) {
         console.error("Gemini API call failed:", e);

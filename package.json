@@ -1,6 +1,5 @@
-
 {
-  "name": "loki-downloader-app",
+  "name": "loki-downloader",
   "private": true,
   "version": "0.0.0",
   "type": "module",
